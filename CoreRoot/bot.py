@@ -119,7 +119,7 @@ async def process_and_show_summary(message: Message, data: Dict[str, Any]) -> No
     text = ''
     try:
         user = User(email=email, password=password, tg_id=id, tg_user_name=username, tg_first_name=first_name, tg_last_name=last_name, username = username, first_name='None', last_name='None')
-        response = await register(URL=URL, body = user.serialize())
+        response = await register(url=URL, body=user.serialize())
         if(response==201):
             text = "Thanks! Registration is done. Now you can return to site and login."
         else:
