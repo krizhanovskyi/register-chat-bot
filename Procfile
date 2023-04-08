@@ -1,1 +1,1 @@
-worker: python bot.py
+worker: python CoreRoot/bot.py
