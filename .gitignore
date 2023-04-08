@@ -1,0 +1,15 @@
+# Keep Rule
+!gitkeep.txt
+*.log
+*.pyc
+__pycache__
+# Environments #
+.env
+virtual_env/
+# Visual Studio and Visual Studio Code #
+*.suo
+*.pyproj
+*.pyproj.user
+*.history
+.vs/
+obj/
