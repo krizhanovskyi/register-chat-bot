@@ -16,13 +16,12 @@ from aiogram.types import (
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
 )
 
 form_router = Router()
 
-API_TOKEN = '5948668821:AAHTSIhygwPZPAYbjBQwvLV7GCDyuGh1CYc'
+TOKEN = getenv('BOT_TOKEN')
+URL = getenv('API_URL')
 
 class Form(StatesGroup):
     email = State()
@@ -120,7 +119,7 @@ async def process_and_show_summary(message: Message, data: Dict[str, Any]) -> No
     text = ''
     try:
         user = User(email=email, password=password, tg_id=id, tg_user_name=username, tg_first_name=first_name, tg_last_name=last_name, username = username, first_name='None', last_name='None')
-        response = await register(user.serialize())
+        response = await register(URL=URL, body = user.serialize())
         if(response==201):
             text = "Thanks! Registration is done. Now you can return to site and login."
         else:
@@ -136,7 +135,7 @@ async def process_and_show_summary(message: Message, data: Dict[str, Any]) -> No
 
 
 async def main():
-    bot = Bot(token="5948668821:AAHTSIhygwPZPAYbjBQwvLV7GCDyuGh1CYc", parse_mode="HTML")
+    bot = Bot(token=TOKEN, parse_mode="HTML")
     dp = Dispatcher()
     dp.include_router(form_router)
     await dp.start_polling(bot)

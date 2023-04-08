@@ -1,13 +1,10 @@
 import aiohttp
 
-
-URL = 'http://127.0.0.1:8000/api/auth/register/'
 headers = {'content-type': 'application/json; charset=UTF-8'}
 
-
-async def register(body):
+async def register(body, url):
     async with aiohttp.ClientSession() as session:
-        async with session.post(URL, data=body, headers=headers) as response:
+        async with session.post(url, data=body, headers=headers) as response:
             msg = await response.text()
             if response.status == 201:
                 return response.status
