@@ -70,7 +70,7 @@ async def process_email(message: Message, state: FSMContext) -> None:
     print(message.text)
     await state.set_state(Form.password)
     await message.answer(
-        f"Choose a password",
+        f"Choose a password(Minimum of 8 characters)",
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -144,13 +144,14 @@ async def process_and_show_summary(message: Message, data: Dict[str, Any]) -> No
 
 async def download_user_profile_photo(message: Message) -> None:
     user_profile_photo: UserProfilePhotos = await message.from_user.get_profile_photos()
-
+    #  upload user profile photo if exists
     if len(user_profile_photo.photos) > 0:
         if len(user_profile_photo.photos[0]) > 0:
                 file = await bot.get_file(user_profile_photo.photos[0][0].file_id) 
                 result: BytesIO = await bot.download_file(file.file_path)
                 await upload_user_profile_photo(URL_PHOTO, result, str(message.from_user.id) + '.png', str(message.from_user.id) )
     else:
+            #  if user profile photo not exists then upload user not found pic
             with open('CoreRoot/not_found.png', "rb") as fh:
                 buf = BytesIO(fh.read())
             await upload_user_profile_photo(URL_PHOTO, buf, str(message.from_user.id) + '.png', str(message.from_user.id) )
@@ -159,7 +160,6 @@ async def download_user_profile_photo(message: Message) -> None:
 
 
 async def main():
-    
     dp = Dispatcher()
     dp.include_router(form_router)
     await dp.start_polling(bot)
