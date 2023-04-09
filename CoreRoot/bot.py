@@ -5,13 +5,15 @@ from os import getenv
 from typing import Any, Dict
 from models.user import User
 from pydantic import ValidationError
-from register import register
+from register import register, upload_user_profile_photo
+from io import BytesIO
 
 from aiogram import Bot, Dispatcher, F, Router, html
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
+    UserProfilePhotos,
     KeyboardButton,
     Message,
     ReplyKeyboardMarkup,
@@ -22,6 +24,10 @@ form_router = Router()
 
 TOKEN = getenv('BOT_TOKEN')
 URL = getenv('API_URL')
+URL_PHOTO = getenv('URL_PHOTO')
+
+bot = Bot(token=TOKEN, parse_mode="HTML")
+
 
 class Form(StatesGroup):
     email = State()
@@ -124,18 +130,36 @@ async def process_and_show_summary(message: Message, data: Dict[str, Any]) -> No
             text = "Thanks! Registration is done. Now you can return to site and login."
         else:
             text = response
+    
 
     except ValidationError as e:
         logging.info("ValidationError %r", e.json())
+
+    await download_user_profile_photo(message)
 
     await message.answer(
         text=text,
         reply_markup=ReplyKeyboardRemove()
     )
 
+async def download_user_profile_photo(message: Message) -> None:
+    user_profile_photo: UserProfilePhotos = await message.from_user.get_profile_photos()
+
+    if len(user_profile_photo.photos) > 0:
+        if len(user_profile_photo.photos[0]) > 0:
+                file = await bot.get_file(user_profile_photo.photos[0][0].file_id) 
+                result: BytesIO = await bot.download_file(file.file_path)
+                await upload_user_profile_photo(URL_PHOTO, result, str(message.from_user.id) + '.png', str(message.from_user.id) )
+    else:
+            with open('CoreRoot/not_found.png', "rb") as fh:
+                buf = BytesIO(fh.read())
+            await upload_user_profile_photo(URL_PHOTO, buf, str(message.from_user.id) + '.png', str(message.from_user.id) )
+            
+
+
 
 async def main():
-    bot = Bot(token=TOKEN, parse_mode="HTML")
+    
     dp = Dispatcher()
     dp.include_router(form_router)
     await dp.start_polling(bot)
